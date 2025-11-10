@@ -46,42 +46,42 @@ def analisar_folha(caminho_excel):
 
         ws = wb[nome_aba]
 
+        max_col = ws.max_column
+        col_turno_manha = max_col - 3
+        col_t_almoco = max_col - 2
+        col_turno_tarde = max_col - 1
+        col_total = max_col
+
         for row in ws.iter_rows(min_row=2):
             try:
                 data = row[0].value
-                hr_ent_m = row[2].value
-                hr_sai_m = row[3].value
-                hr_ent_t = row[4].value
-                hr_sai_t = row[5].value
-                hr_tot_t = row[6].value
+                t_manha = str_para_tempo(row[col_turno_manha - 1].value)
+                t_almoco = str_para_tempo(row[col_t_almoco - 1].value)
+                t_tarde = str_para_tempo(row[col_turno_tarde - 1].value)
+                t_total = str_para_tempo(row[col_total - 1].value)
 
-                t_ent_m = str_para_tempo(hr_ent_m)
-                t_sai_m = str_para_tempo(hr_sai_m)
-                t_ent_t = str_para_tempo(hr_ent_t)
-                t_sai_t = str_para_tempo(hr_sai_t)
-                t_tot_t = str_para_tempo(hr_tot_t)
-
-                # Cálculo de jornada total
-                if t_tot_t and t_tot_t > timedelta(hours=10):
+                # Jornada total acima de 10 horas
+                if t_total and t_total > timedelta(hours=10):
                     for cell in row:
                         cell.fill = fill_vermelho
-                    resumo.append([nome_aba, data, "Jornada > 10h", f"Duração total: {t_tot_t}"])
-                
-                # Almoço menor que 1 hora
-                if t_sai_m and t_ent_t:
-                    almoco = t_ent_t - t_sai_m
-                    if almoco < timedelta(hours=1):
-                        for cell in row:
-                            cell.fill = fill_amarelo
-                        resumo.append([nome_aba, data, "Almoço < 1h", f"Duração do almoço: {almoco}"])
+                    resumo.append([nome_aba, data, "Jornada > 10h", f"Jornada total: {t_total}"])
 
-                # Turno > 6h sem intervalo
-                if t_ent_m and t_sai_m and not t_ent_t and not t_sai_t:
-                    turno = t_sai_m - t_ent_m
-                    if turno > timedelta(hours=6):
-                        for cell in row:
-                            cell.fill = fill_laranja
-                        resumo.append([nome_aba, data, "Turno > 6h sem intervalo", f"Duração do turno: {turno}"])   
+                # Turno com mais de 6 horas sem intervalo
+                if t_manha and t_manha > timedelta(hours=6):
+                    for cell in row:
+                        cell.fill = fill_laranja
+                    resumo.append([nome_aba, data, "Turno da manhã > 6h", f"Duração do turno: {t_manha}"])
+
+                if t_tarde and t_tarde > timedelta(hours=6):
+                    for cell in row:
+                        cell.fill = fill_laranja
+                    resumo.append([nome_aba, data, "Turno da tarde > 6h", f"Duração do turno: {t_tarde}"])
+
+                # Tempo do almoço menor que 1 hora
+                if t_almoco and t_almoco < timedelta(hours=1):
+                    for cell in row:
+                        cell.fill = fill_amarelo
+                    resumo.append([nome_aba, data, "Almoço < 1h", f"Tempo de almoço: {t_almoco}"])
 
             except Exception as e:
                 print(f"Erro ao analisar linha {row[0].row} na aba {nome_aba}: {e}")
@@ -102,8 +102,7 @@ def analisar_folha(caminho_excel):
                     max_length = max(max_length, len(str(cell.value)))
             except:
                 pass
-        ajuste = (max_length + 2)
-        resumo.column_dimensions[coluna_letra].width = ajuste
+        resumo.column_dimensions[coluna_letra].width = max_length + 2
 
 
     wb.save(caminho_excel)
