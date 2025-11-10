@@ -13,6 +13,8 @@ bold_font = Font(bold=True)
 
 def str_para_tempo(valor):
     # Converte string "HH:MM" para objeto datetime.time
+    if not valor:
+        return None
     try:
         h, m = map(int, re.findall(r'\d+', valor))
         return timedelta(hours=h, minutes=m)
@@ -36,6 +38,8 @@ def analisar_folha(caminho_excel):
             cell.font = bold_font
             cell.alignment = center_align
 
+    
+    # Central da análise
     for nome_aba in wb.sheetnames:
         if nome_aba == "RESUMO":
             continue
