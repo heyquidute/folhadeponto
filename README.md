@@ -2,9 +2,8 @@
 
 
 
-![Screenshot da Interface](assets\_interface.png)
+![Screenshot da Interface](assets/_interface.png)
 
-> *Exemplo da interface principal do aplicativo (adicione aqui uma captura da tela inicial com o botão “Selecionar PDF”).*
 
 
 
