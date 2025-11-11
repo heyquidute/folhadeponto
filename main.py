@@ -4,6 +4,7 @@ import threading
 import os
 from analisar_folha import analisar_folha
 from extrair_tabela import gerar_excel
+from analisar_atestados import analisar_atestados
 
 # ======================================================
 # CLASSE PRINCIPAL - Interface e lógica do aplicativo
@@ -23,6 +24,7 @@ class FolhaPontoApp:
         self.progress_var = tk.DoubleVar()    # Valor da barra de progresso
         self.status_var = tk.StringVar(value="Aguardando arquivo...")  # Mensagem de status
         self.cancel_requested = False         # Flag para cancelamento do processamento
+        self.tipo_relatorio = tk.StringVar(value="Relatório de atestados") # Variável do tipo de relatório
 
         # --- Criação dos componentes da interface ---
         self.create_widgets()
@@ -66,7 +68,7 @@ class FolhaPontoApp:
 
         title_label = tk.Label(
             header_frame,
-            text="Analisador de Folha de Ponto \n COMANDO",
+            text="Analisador da Folha de Ponto \n COMANDO",
             font=("Segoe UI", 14, "bold"),
             fg="white",
             bg="#034794"
@@ -97,7 +99,7 @@ class FolhaPontoApp:
         self.combo_tipo = ttk.Combobox(
             tipo_frame,
             textvariable=self.tipo_relatorio,
-            values=["Padrão", "Simplificado", "Completo"],
+            values=["Relatório de atestados", "Relatório de horários"],
             state="readonly",
             width=25
         )
@@ -208,7 +210,12 @@ class FolhaPontoApp:
     # ======================================================
     def run_processing_pipeline(self):
         pdf_path = self.file_path_var.get()
-        output_path = os.path.splitext(pdf_path)[0] + "_processado.xlsx"
+        if self.tipo_relatorio.get() == "Relatório de atestados":
+            output_path = os.path.splitext(pdf_path)[0] + "_atestados.xlsx"
+        elif self.tipo_relatorio.get() == "Relatório de horários":
+            output_path = os.path.splitext(pdf_path)[0] + "_horarios.xlsx"
+        else:
+            output_path = os.path.splitext(pdf_path)[0] + "_processado.xlsx"
 
         # Callback interno para atualizar progresso
         def progress_update(percent, message):
@@ -232,8 +239,15 @@ class FolhaPontoApp:
                 return
 
             # --- Etapa 2: Analisar a folha gerada ---
-            progress_update(100, "Analisando folha de ponto...")
-            analisar_folha(output_path)
+            tipo = self.tipo_relatorio.get()
+            progress_update(100, "Aguarde. Analisando folha de ponto...")
+
+            if tipo == "Relatório de atestados":
+                analisar_atestados(output_path)
+            elif tipo == "Relatório de horários":
+                analisar_folha(output_path)
+            else:
+                raise ValueError("Tipo de relatório desconhecido")
 
             # --- Conclusão ---
             self.status_var.set("✅ Processamento concluído!")

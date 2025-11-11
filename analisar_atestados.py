@@ -1,9 +1,5 @@
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Font, Border, Side, PatternFill
-import os
-
-# Caminho fixo do arquivo a ser analisado
-CAMINHO_ARQUIVO = r"C:\Users\Usuario\Documents\Projetos automacao\FOLHA DE PONTO\FOLHA DE PONTO 2.0\PONTO GERAL SETEMBRO_processado.xlsx"
 
 def analisar_atestados(caminho_arquivo):
     # Carrega o workbook existente
@@ -24,7 +20,7 @@ def analisar_atestados(caminho_arquivo):
     preenchimento_verde = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
 
     # Cabeçalho da aba ATESTADOS
-    cabecalho = ["Funcionario", "Data", "Detalhe"]
+    cabecalho = ["Funcionário", "Data", "Detalhe"]
     aba_atestados.append(cabecalho)
     for cel in aba_atestados[1]:
         cel.font = fonte_negrito
@@ -74,13 +70,5 @@ def analisar_atestados(caminho_arquivo):
         for cel in linha:
             cel.alignment = alinhamento_centro
 
-    # Gera o novo nome do arquivo
-    base, ext = os.path.splitext(caminho_arquivo)
-    novo_arquivo = f"{base}_atestados{ext}"
-
-    wb.save(novo_arquivo)
-    print(f"Arquivo salvo com sucesso:\n{novo_arquivo}")
-
-
-if __name__ == "__main__":
-    analisar_atestados(CAMINHO_ARQUIVO)
+    wb.save(caminho_arquivo)
+    print(f"Arquivo salvo com sucesso:\n{caminho_arquivo}")
