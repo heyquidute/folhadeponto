@@ -250,7 +250,7 @@ class FolhaPontoApp:
                 raise ValueError("Tipo de relatório desconhecido")
 
             # --- Conclusão ---
-            self.status_var.set("✅ Processamento concluído!")
+            self.status_var.set("Processamento concluído!")
             messagebox.showinfo("Sucesso", f"Arquivo salvo em:\n{output_path}")
 
         except Exception as e:

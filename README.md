@@ -73,7 +73,6 @@ A interface é simples, moderna e intuitiva — basta selecionar o PDF e escolhe
 
 ```
 python main.py
-
 ```
 
 2. Na janela que abrir:
