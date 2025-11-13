@@ -21,7 +21,7 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
     ]
 
     # ===== Função que normaliza uma linha de ponto =====
-    def parse_line_to_11_fields(linha):
+    def parse_line_to_15_fields(linha):
         s = linha.strip()
         if not s:
             return [""] * 11
@@ -36,7 +36,7 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
         i = 2
         while i < len(tokens):
             t = tokens[i]
-            if re.match(r"^\d{2}:\d{2}$", t):
+            if re.match(r"^-?\d{2}:\d{2}$", t):
                 horas.append(t)
             else:
                 ocorrencia = " ".join(tokens[i:]).strip()
@@ -73,7 +73,7 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
 
                 # Captura linha de ponto
                 if re.match(r"^\d{2}/\d{2}/\d{3,4}", ln):
-                    ln = re.sub(r"(\d{2}/\d{2}/202)(\s|$)", r"\g<1>5\2", ln)
+                    ln = re.sub(r"(\d{2}/\d{2}/202)(\s|$)", r"\g<1>5\2", ln) # Quando o ano da linha aparece só 202, é corrigo de forma "manual" o ano, acrescentando o 5. Automatizar isso depois
                     linhas_ponto.append(ln)
                     continue
 
@@ -102,7 +102,7 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
 
             # ===== Adiciona as linhas de ponto =====
             for i, linha_ponto in enumerate(linhas_ponto, start=2):
-                dados = parse_line_to_11_fields(linha_ponto)
+                dados = parse_line_to_15_fields(linha_ponto)
 
                 hr_ent_m = dados[2]
                 hr_sai_m = dados[3]

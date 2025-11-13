@@ -4,10 +4,10 @@ from datetime import timedelta
 import re
 import os
 
-# Configurações de estilo
-fill_amarelo = PatternFill(start_color="F9E700", end_color="F9E700", fill_type="solid")
-fill_laranja = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
-fill_vermelho = PatternFill(start_color="FF7F7F", end_color="FF7F7F", fill_type="solid")
+# Estilos
+preenchimento_amarelo = PatternFill(start_color="F9E700", end_color="F9E700", fill_type="solid")
+preenchimento_laranja = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
+preenchimento_vermelho = PatternFill(start_color="FF7F7F", end_color="FF7F7F", fill_type="solid")
 center_align = Alignment(horizontal="center", vertical="center")
 bold_font = Font(bold=True)
 borda_inferior = Border(bottom=Side(style="thin", color="000000"))
@@ -67,18 +67,18 @@ def analisar_folha(caminho_excel):
                 # Jornada total acima de 10 horas
                 if t_total and t_total > timedelta(hours=10):
                     for cell in row:
-                        cell.fill = fill_vermelho
+                        cell.fill = preenchimento_vermelho
                     resumo.append([nome_aba, data, "Jornada > 10h", f"Jornada total: {t_total}"])
 
                 # Turno com mais de 6 horas sem intervalo
                 if t_manha and t_manha > timedelta(hours=6):
                     for cell in row:
-                        cell.fill = fill_laranja
+                        cell.fill = preenchimento_laranja
                     resumo.append([nome_aba, data, "Turno da manhã > 6h", f"Duração do turno: {t_manha}"])
 
                 if t_tarde and t_tarde > timedelta(hours=6):
                     for cell in row:
-                        cell.fill = fill_laranja
+                        cell.fill = preenchimento_amarelo
                     resumo.append([nome_aba, data, "Turno da tarde > 6h", f"Duração do turno: {t_tarde}"])
 
                 # Tempo do almoço menor que 1 hora

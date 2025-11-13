@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import threading
 import os
+from analisar_batidas import analisar_batidas
 from analisar_folha import analisar_folha
 from extrair_tabela import gerar_excel
 from analisar_atestados import analisar_atestados
@@ -99,7 +100,7 @@ class FolhaPontoApp:
         self.combo_tipo = ttk.Combobox(
             tipo_frame,
             textvariable=self.tipo_relatorio,
-            values=["Relatório de atestados", "Relatório de horários"],
+            values=["Relatório de atestados", "Relatório de horários","Relatório de batidas"],
             state="readonly",
             width=25
         )
@@ -214,6 +215,8 @@ class FolhaPontoApp:
             output_path = os.path.splitext(pdf_path)[0] + "_atestados.xlsx"
         elif self.tipo_relatorio.get() == "Relatório de horários":
             output_path = os.path.splitext(pdf_path)[0] + "_horarios.xlsx"
+        elif self.tipo_relatorio.get() == "Relatório de batidas":
+            output_path = os.path.splitext(pdf_path)[0] + "_batidasdeponto.xlsx"
         else:
             output_path = os.path.splitext(pdf_path)[0] + "_processado.xlsx"
 
@@ -246,6 +249,8 @@ class FolhaPontoApp:
                 analisar_atestados(output_path)
             elif tipo == "Relatório de horários":
                 analisar_folha(output_path)
+            elif tipo == "Relatório de batidas":
+                analisar_batidas(output_path)
             else:
                 raise ValueError("Tipo de relatório desconhecido")
 

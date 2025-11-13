@@ -14,9 +14,9 @@ def analisar_atestados(caminho_arquivo):
     aba_atestados = wb.create_sheet("ATESTADOS", 0)
     aba_atestados.sheet_view.showGridLines = False
 
-    # Estilos usados
-    alinhamento_centro = Alignment(horizontal="center", vertical="center")
-    fonte_negrito = Font(bold=True)
+    # Estilos
+    center_align = Alignment(horizontal="center", vertical="center")
+    bold_font = Font(bold=True)
     borda_inferior = Border(bottom=Side(style="thin", color="000000"))
     preenchimento_verde = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
     preenchimento_amarelo = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
@@ -25,8 +25,8 @@ def analisar_atestados(caminho_arquivo):
     cabecalho = ["Funcionário", "Data", "Detalhe","Observação"]
     aba_atestados.append(cabecalho)
     for cel in aba_atestados[1]:
-        cel.font = fonte_negrito
-        cel.alignment = alinhamento_centro
+        cel.font = bold_font
+        cel.alignment = center_align
         cel.border = borda_inferior
 
     # Lista das abas dos funcionários com atestados
@@ -108,7 +108,7 @@ def analisar_atestados(caminho_arquivo):
 
     for linha in aba_atestados.iter_rows(min_row=2):
         for cel in linha:
-            cel.alignment = alinhamento_centro
+            cel.alignment = center_align
 
     wb.save(caminho_arquivo)
     print(f"Arquivo salvo com sucesso:\n{caminho_arquivo}")
