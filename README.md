@@ -2,7 +2,7 @@
 
 
 
-![Screenshot da Interface](assets/_interface.png)
+![Screenshot da Interface](/assets/imagem.png)
 
 
 

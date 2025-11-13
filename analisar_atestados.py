@@ -85,7 +85,9 @@ def analisar_atestados(caminho_arquivo):
                     except:
                         pass
                 if horas is not None and horas < 5:
-                    aba_atestados.append([nome_aba, data, ocorrencia_raw, f"{total_raw}h trabalhadas no total"])
+                    horas_compensar = 6 - horas
+                    h, m = divmod(horas_compensar * 60, 60)
+                    aba_atestados.append([nome_aba, data, ocorrencia_raw, f"{int(h):02d}h{int(m):02d}min a compensar"])
                     funcionarios_com_atestado.add(nome_aba)
 
                     # Pinta a linha de amarelo
