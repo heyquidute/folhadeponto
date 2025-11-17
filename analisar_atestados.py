@@ -20,17 +20,31 @@ def analisar_atestados(caminho_arquivo):
     borda_inferior = Border(bottom=Side(style="thin", color="000000"))
     preenchimento_verde = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
     preenchimento_amarelo = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
+    preenchimento_cinza = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
+
+
+    aba_atestados.append(["# Total de atestados"])
+    for cel in aba_atestados[1]:
+        cel.font = bold_font
+        cel.alignment = center_align
+        cel.border = borda_inferior
+        cel.fill = preenchimento_cinza
+    aba_atestados.append([])
+    aba_atestados.append([])
 
     # Cabeçalho da aba ATESTADOS
     cabecalho = ["Funcionário", "Data", "Detalhe","Observação"]
     aba_atestados.append(cabecalho)
-    for cel in aba_atestados[1]:
+    for cel in aba_atestados[4]:
         cel.font = bold_font
         cel.alignment = center_align
         cel.border = borda_inferior
 
     # Lista das abas dos funcionários com atestados
     funcionarios_com_atestado = set()
+
+    # Quantidade de atestados
+    qtd_atestados = 0
 
     # Percorre cada aba de funcionário
     for nome_aba in wb.sheetnames.copy():
@@ -71,6 +85,8 @@ def analisar_atestados(caminho_arquivo):
                 # Pinta a linha inteira de verde na aba do funcionário
                 for cel in linha_celulas:
                     cel.fill = preenchimento_verde
+                if ocorrencia.startswith("007") or ocorrencia.startswith("ATESTADO"):
+                    qtd_atestados += 1
 
             elif ocorrencia.startswith("014"):
                 horas = None
@@ -94,6 +110,9 @@ def analisar_atestados(caminho_arquivo):
                     for cel in linha_celulas:
                         cel.fill = preenchimento_amarelo
 
+    # Adicionar quantidade de atestados na célula A2
+    aba_atestados["A2"] = qtd_atestados
+
     # Remove aba de quem não tem atestado
     for nome_aba in wb.sheetnames.copy():
         if nome_aba != "ATESTADOS" and nome_aba not in funcionarios_com_atestado:
@@ -111,4 +130,4 @@ def analisar_atestados(caminho_arquivo):
             cel.alignment = center_align
 
     wb.save(caminho_arquivo)
-    print(f"Arquivo salvo com sucesso:\n{caminho_arquivo}")
+    print(f"Arquivo salvo com sucesso:\n{caminho_arquivo}\n Qtd atestados {qtd_atestados}")

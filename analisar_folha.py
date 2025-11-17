@@ -64,11 +64,11 @@ def analisar_folha(caminho_excel):
                 t_tarde = str_para_tempo(row[col_turno_tarde - 1].value)
                 t_total = str_para_tempo(row[col_total - 1].value)
 
-                # Jornada total acima de 10 horas
-                if t_total and t_total > timedelta(hours=10):
+                 # Tempo do almoço menor que 1 hora
+                if t_almoco and t_almoco < timedelta(hours=1):
                     for cell in row:
-                        cell.fill = preenchimento_vermelho
-                    resumo.append([nome_aba, data, "Jornada > 10h", f"Jornada total: {t_total}"])
+                        cell.fill = preenchimento_amarelo
+                    resumo.append([nome_aba, data, "Almoço < 1h", f"Tempo de almoço: {t_almoco}"])
 
                 # Turno com mais de 6 horas sem intervalo
                 if t_manha and t_manha > timedelta(hours=6):
@@ -78,14 +78,14 @@ def analisar_folha(caminho_excel):
 
                 if t_tarde and t_tarde > timedelta(hours=6):
                     for cell in row:
-                        cell.fill = preenchimento_amarelo
+                        cell.fill = preenchimento_laranja
                     resumo.append([nome_aba, data, "Turno da tarde > 6h", f"Duração do turno: {t_tarde}"])
-
-                # Tempo do almoço menor que 1 hora
-                if t_almoco and t_almoco < timedelta(hours=1):
+               
+                # Jornada total acima de 10 horas
+                if t_total and t_total > timedelta(hours=10):
                     for cell in row:
-                        cell.fill = fill_amarelo
-                    resumo.append([nome_aba, data, "Almoço < 1h", f"Tempo de almoço: {t_almoco}"])
+                        cell.fill = preenchimento_vermelho
+                    resumo.append([nome_aba, data, "Jornada > 10h", f"Jornada total: {t_total}"])
 
             except Exception as e:
                 print(f"Erro ao analisar linha {row[0].row} na aba {nome_aba}: {e}")
