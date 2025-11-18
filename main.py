@@ -4,6 +4,7 @@ import threading
 import os
 from analisar_batidas import analisar_batidas
 from analisar_folha import analisar_folha
+from analisar_tudo import analisar_tudo
 from extrair_tabela import gerar_excel
 from analisar_atestados import analisar_atestados
 
@@ -100,7 +101,7 @@ class FolhaPontoApp:
         self.combo_tipo = ttk.Combobox(
             tipo_frame,
             textvariable=self.tipo_relatorio,
-            values=["Relatório de atestados", "Relatório de horários","Relatório de batidas"],
+            values=["Relatório completo","Relatório de ocorrências", "Relatório de horários","Relatório de batidas"],
             state="readonly",
             width=25
         )
@@ -211,8 +212,10 @@ class FolhaPontoApp:
     # ======================================================
     def run_processing_pipeline(self):
         pdf_path = self.file_path_var.get()
-        if self.tipo_relatorio.get() == "Relatório de atestados":
-            output_path = os.path.splitext(pdf_path)[0] + "_atestados.xlsx"
+        if self.tipo_relatorio.get() == "Relatório completo":
+            output_path = os.path.splitext(pdf_path)[0] + "_completo.xlsx"
+        elif self.tipo_relatorio.get() == "Relatório de ocorrências":
+            output_path = os.path.splitext(pdf_path)[0] + "_ocorrencias.xlsx"
         elif self.tipo_relatorio.get() == "Relatório de horários":
             output_path = os.path.splitext(pdf_path)[0] + "_horarios.xlsx"
         elif self.tipo_relatorio.get() == "Relatório de batidas":
@@ -245,7 +248,9 @@ class FolhaPontoApp:
             tipo = self.tipo_relatorio.get()
             progress_update(100, "Aguarde. Analisando folha de ponto...")
 
-            if tipo == "Relatório de atestados":
+            if tipo == "Relatório completo":
+                analisar_tudo(output_path)
+            elif tipo == "Relatório de ocorrências":
                 analisar_atestados(output_path)
             elif tipo == "Relatório de horários":
                 analisar_folha(output_path)

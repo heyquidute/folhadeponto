@@ -2,7 +2,9 @@ from datetime import datetime, timedelta
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Font, Border, Side, PatternFill
 
-def analisar_atestados(caminho_arquivo):
+from str_to_time import str_para_tempo
+
+def analisar_tudo(caminho_arquivo):
     # Carrega o workbook existente
     wb = load_workbook(caminho_arquivo)
 
@@ -19,7 +21,10 @@ def analisar_atestados(caminho_arquivo):
     bold_font = Font(bold=True)
     borda_inferior = Border(bottom=Side(style="thin", color="000000"))
     preenchimento_verde = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
-    preenchimento_amarelo = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
+    preenchimento_amarelo = PatternFill(start_color="F9E700", end_color="F9E700", fill_type="solid")
+    preenchimento_laranja = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
+    preenchimento_vermelho = PatternFill(start_color="FF7F7F", end_color="FF7F7F", fill_type="solid")
+    preenchimento_azul = PatternFill(start_color="BDD7EE", end_color="BDD7EE", fill_type="solid")
 
     # Cabeçalho da aba OCORRÊNCIAS
     cabecalho = ["Funcionário", "Data", "Detalhe","Observação"]
@@ -39,6 +44,12 @@ def analisar_atestados(caminho_arquivo):
 
         aba = wb[nome_aba]
 
+        max_col = aba.max_column
+        col_turno_manha = max_col - 3
+        col_t_almoco = max_col - 2
+        col_turno_tarde = max_col - 1
+        col_total = max_col
+
         # Pega cabeçalhos da aba
         cabecalhos = [celula.value for celula in next(aba.iter_rows(min_row=1, max_row=1))]
         if "Data" not in cabecalhos or "Ocorrencia" not in cabecalhos or "Total" not in cabecalhos:
@@ -47,18 +58,22 @@ def analisar_atestados(caminho_arquivo):
         idx_data = cabecalhos.index("Data") + 1
         idx_ocorrencia = cabecalhos.index("Ocorrencia") + 1
         idx_total = cabecalhos.index("Total") + 1
+        idx_hrtot = cabecalhos.index("Hr Tot T")+1
 
         # Percorre as linhas da aba do funcionário
         for linha_celulas in aba.iter_rows(min_row=2):
             data = linha_celulas[idx_data - 1].value
             ocorrencia_raw = linha_celulas[idx_ocorrencia - 1].value
             total_raw = linha_celulas[idx_total - 1].value
-            if not ocorrencia_raw:
-                continue
+            t_manha = str_para_tempo(linha_celulas[col_turno_manha - 1].value)
+            t_almoco = str_para_tempo(linha_celulas[col_t_almoco - 1].value)
+            t_tarde = str_para_tempo(linha_celulas[col_turno_tarde - 1].value)
+            t_total = str_para_tempo(linha_celulas[col_total - 1].value)
+            valor_hrtot = linha_celulas[idx_hrtot-1].value
 
             ocorrencia = str(ocorrencia_raw).strip().upper()
 
-            # Se for atestado
+            # OCORRÊNCIAS
             if (
                 ocorrencia.startswith("007") or 
                 ocorrencia.startswith("ATESTADO") or 
@@ -94,13 +109,43 @@ def analisar_atestados(caminho_arquivo):
                     for cel in linha_celulas:
                         cel.fill = preenchimento_amarelo
 
-    # Remove aba de quem não tem atestado
-    for nome_aba in wb.sheetnames.copy():
-        if nome_aba != "OCORRÊNCIAS" and nome_aba not in funcionarios_com_atestado:
-            del wb[nome_aba]
-    
+            # HORÁRIOS
+            # Tempo do almoço menor que 1 hora
+            if t_almoco and t_almoco < timedelta(hours=1):
+                for cell in linha_celulas:
+                    cell.fill = preenchimento_amarelo
+                aba_ocorrencias.append([nome_aba, data, "Almoço < 1h", f"Tempo de almoço: {t_almoco}"])
 
-    # Ajusta formatação da aba ATESTADOS
+            # Turno com mais de 6 horas sem intervalo
+            if t_manha and t_manha > timedelta(hours=6):
+                for cell in linha_celulas:
+                    cell.fill = preenchimento_laranja
+                aba_ocorrencias.append([nome_aba, data, "Turno da manhã > 6h", f"Duração do turno: {t_manha}"])
+
+            if t_tarde and t_tarde > timedelta(hours=6):
+                for cell in linha_celulas:
+                    cell.fill = preenchimento_laranja
+                aba_ocorrencias.append([nome_aba, data, "Turno da tarde > 6h", f"Duração do turno: {t_tarde}"])
+            
+            # Jornada total acima de 10 horas
+            if t_total and t_total > timedelta(hours=10):
+                for cell in linha_celulas:
+                    cell.fill = preenchimento_vermelho
+                aba_ocorrencias.append([nome_aba, data, "Jornada > 10h", f"Jornada total: {t_total}"])
+
+            #ERRO NA BATIDA
+            try:
+                negativo = "-" in str(valor_hrtot) or valor_hrtot.startswith("−")
+            except:
+                negativo = False
+
+            if negativo:
+                for cel in linha_celulas:
+                    cel.fill = preenchimento_azul
+
+                aba_ocorrencias.append([nome_aba,data,"Erro na batida do ponto",""])
+
+    # Ajusta formatação da aba OCORRÊNCIAS
     for coluna in aba_ocorrencias.columns:
         coluna_letra = coluna[0].column_letter
         max_len = max(len(str(cel.value)) if cel.value else 0 for cel in coluna)

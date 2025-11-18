@@ -4,6 +4,8 @@ from datetime import timedelta
 import re
 import os
 
+from str_to_time import str_para_tempo
+
 # Estilos
 preenchimento_amarelo = PatternFill(start_color="F9E700", end_color="F9E700", fill_type="solid")
 preenchimento_laranja = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
@@ -12,16 +14,6 @@ center_align = Alignment(horizontal="center", vertical="center")
 bold_font = Font(bold=True)
 borda_inferior = Border(bottom=Side(style="thin", color="000000"))
 
-def str_para_tempo(valor):
-    # Converte string "HH:MM" para objeto datetime.time
-    if not valor:
-        return None
-    try:
-        h, m = map(int, re.findall(r'\d+', valor))
-        return timedelta(hours=h, minutes=m)
-    except:
-        return None   
-    
 def analisar_folha(caminho_excel):
     print(f"Analisando arquivo: {os.path.basename(caminho_excel)}")
 
@@ -64,7 +56,7 @@ def analisar_folha(caminho_excel):
                 t_tarde = str_para_tempo(row[col_turno_tarde - 1].value)
                 t_total = str_para_tempo(row[col_total - 1].value)
 
-                 # Tempo do almoço menor que 1 hora
+                # Tempo do almoço menor que 1 hora
                 if t_almoco and t_almoco < timedelta(hours=1):
                     for cell in row:
                         cell.fill = preenchimento_amarelo
