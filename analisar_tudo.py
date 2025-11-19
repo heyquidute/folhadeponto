@@ -27,7 +27,7 @@ def analisar_tudo(caminho_arquivo):
     preenchimento_azul = PatternFill(start_color="BDD7EE", end_color="BDD7EE", fill_type="solid")
 
     # Cabeçalho da aba OCORRÊNCIAS
-    cabecalho = ["Funcionário", "Data", "Detalhe","Observação"]
+    cabecalho = ["Funcionário", "Data", "Ocorrência","Observações da folha de ponto"]
     aba_ocorrencias.append(cabecalho)
     for cel in aba_ocorrencias[1]:
         cel.font = bold_font
@@ -74,14 +74,15 @@ def analisar_tudo(caminho_arquivo):
             ocorrencia = str(ocorrencia_raw).strip().upper()
 
             # OCORRÊNCIAS
-            if (
-                ocorrencia.startswith("007") or 
-                ocorrencia.startswith("ATESTADO") or 
-                ocorrencia.startswith("008") or 
-                ocorrencia.startswith("004")
-            ):
-                # Adiciona à aba ATESTADOS
-                aba_ocorrencias.append([nome_aba, data, ocorrencia_raw, ""])
+            if (ocorrencia.startswith("007") or ocorrencia.startswith("ATESTADO")):
+                aba_ocorrencias.append([nome_aba, data, "Atestado médico", ocorrencia_raw])
+                funcionarios_com_atestado.add(nome_aba)
+                # Pinta a linha inteira de verde na aba do funcionário
+                for cel in linha_celulas:
+                    cel.fill = preenchimento_verde
+
+            elif (ocorrencia.startswith("008") or ocorrencia.startswith("004")):
+                aba_ocorrencias.append([nome_aba, data, "Banco de horas", ocorrencia_raw])
                 funcionarios_com_atestado.add(nome_aba)
                 # Pinta a linha inteira de verde na aba do funcionário
                 for cel in linha_celulas:
@@ -102,7 +103,7 @@ def analisar_tudo(caminho_arquivo):
                 if horas is not None and horas < 5:
                     horas_compensar = 6 - horas
                     h, m = divmod(horas_compensar * 60, 60)
-                    aba_ocorrencias.append([nome_aba, data, ocorrencia_raw, f"{int(h):02d}h{int(m):02d}min a compensar"])
+                    aba_ocorrencias.append([nome_aba, data, "Saída antecipada", f"{int(h):02d}h{int(m):02d}min a compensar"])
                     funcionarios_com_atestado.add(nome_aba)
 
                     # Pinta a linha de amarelo
