@@ -2,11 +2,9 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import threading
 import os
-from analisar_batidas import analisar_batidas
-from analisar_folha import analisar_folha
-from analisar_tudo import analisar_tudo
+from naoconformidade import analisar_conformidade
 from extrair_tabela import gerar_excel
-from analisar_atestados import analisar_atestados
+from verificacao import analisar_verificacao
 
 # ======================================================
 # CLASSE PRINCIPAL - Interface e lógica do aplicativo
@@ -15,7 +13,7 @@ class FolhaPontoApp:
     def __init__(self, root):
         # --- Configuração da janela principal ---
         self.root = root
-        self.root.title("Analisador da Folha de Ponto")
+        self.root.title("Gerador de Relatório da Folha de Ponto")
         self.root.geometry("620x380")
         self.root.configure(bg="#eef1f6")
         self.root.resizable(False, False)
@@ -26,7 +24,7 @@ class FolhaPontoApp:
         self.progress_var = tk.DoubleVar()    # Valor da barra de progresso
         self.status_var = tk.StringVar(value="Aguardando arquivo...")  # Mensagem de status
         self.cancel_requested = False         # Flag para cancelamento do processamento
-        self.tipo_relatorio = tk.StringVar(value="Relatório de atestados") # Variável do tipo de relatório
+        self.tipo_relatorio = tk.StringVar(value="Relatório de verificação") # Variável do tipo de relatório
 
         # --- Criação dos componentes da interface ---
         self.create_widgets()
@@ -70,7 +68,7 @@ class FolhaPontoApp:
 
         title_label = tk.Label(
             header_frame,
-            text="Analisador da Folha de Ponto \n COMANDO",
+            text="Gerador de Relatório da Folha de Ponto \n COMANDO",
             font=("Segoe UI", 14, "bold"),
             fg="white",
             bg="#034794"
@@ -101,7 +99,7 @@ class FolhaPontoApp:
         self.combo_tipo = ttk.Combobox(
             tipo_frame,
             textvariable=self.tipo_relatorio,
-            values=["Relatório completo","Relatório de ocorrências", "Relatório de horários","Relatório de batidas"],
+            values=["Relatório de verificação","Relatório de não conformidade"],
             state="readonly",
             width=25
         )
@@ -212,16 +210,10 @@ class FolhaPontoApp:
     # ======================================================
     def run_processing_pipeline(self):
         pdf_path = self.file_path_var.get()
-        if self.tipo_relatorio.get() == "Relatório completo":
-            output_path = os.path.splitext(pdf_path)[0] + "_completo.xlsx"
-        elif self.tipo_relatorio.get() == "Relatório de ocorrências":
-            output_path = os.path.splitext(pdf_path)[0] + "_ocorrencias.xlsx"
-        elif self.tipo_relatorio.get() == "Relatório de horários":
-            output_path = os.path.splitext(pdf_path)[0] + "_horarios.xlsx"
-        elif self.tipo_relatorio.get() == "Relatório de batidas":
-            output_path = os.path.splitext(pdf_path)[0] + "_batidasdeponto.xlsx"
-        else:
-            output_path = os.path.splitext(pdf_path)[0] + "_processado.xlsx"
+        if self.tipo_relatorio.get() == "Relatório de verificação":
+            output_path = os.path.splitext(pdf_path)[0] + "_verificacao.xlsx"
+        elif self.tipo_relatorio.get() == "Relatório de não conformidade":
+            output_path = os.path.splitext(pdf_path)[0] + "_naoconformidade.xlsx"
 
         # Callback interno para atualizar progresso
         def progress_update(percent, message):
@@ -248,14 +240,10 @@ class FolhaPontoApp:
             tipo = self.tipo_relatorio.get()
             progress_update(100, "Aguarde. Analisando folha de ponto...")
 
-            if tipo == "Relatório completo":
-                analisar_tudo(output_path)
-            elif tipo == "Relatório de ocorrências":
-                analisar_atestados(output_path)
-            elif tipo == "Relatório de horários":
-                analisar_folha(output_path)
-            elif tipo == "Relatório de batidas":
-                analisar_batidas(output_path)
+            if tipo == "Relatório de não conformidade":
+                analisar_conformidade(output_path)
+            if tipo == "Relatório de verificação":
+                analisar_verificacao(output_path)
             else:
                 raise ValueError("Tipo de relatório desconhecido")
 

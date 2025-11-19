@@ -17,7 +17,8 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
     colunas = [
         "Data", "Dia", "Hr Ent M", "Hr Sai M", "Hr Ent T", "Hr Sai T",
         "Hr Tot T", "Hr Falta", "Hr Extra", "Hr Usada", "Ocorrencia",
-        "Turno Manhã", "T Almoço", "Turno Tarde", "Total"
+        "Turno Manhã", "T Almoço", "Turno Tarde", "Total",
+        "Saldo Ant", "HS", "Saldo Atual"
     ]
 
     # ===== Função que normaliza uma linha de ponto =====
@@ -25,7 +26,7 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
         s = linha.strip()
         if not s:
             return [""] * 11
-        s = re.sub(r"^(\d{2}/\d{2}/202)(\s|$)", r"\g<1>5\2", s)
+        s = re.sub(r"^(\d{2}/\d{2}/202)(\s|$)", r"\g<1>5\2", s) #MUDAR EM 2026
         tokens = re.split(r"\s+", s)
         if not tokens or not re.match(r"^\d{2}/\d{2}/\d{4}$", tokens[0]):
             return [""] * 10 + [s]
@@ -80,14 +81,28 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
                 # Captura linha do funcionário
                 m = re.match(r"^(\d{2})\s+(\d{6})\s+(.+)$", ln)
                 if m:
-                    funcionario = m.groups()  # (fl_reg, matricula, nome)
+                    fl_reg, matricula, nome_completo = m.groups()
+
+                    m2 = re.match(r"^(?P<nome>.+?)\s+(?P<saldo_ant>-?\d+\.\d+)\s+(?P<hs>-?\d+\.\d+)\s+(?P<saldo_atual>-?\d+\.\d+)$", nome_completo)
+
+                    if m2:
+                        nome = m2.group("nome").strip()
+                        saldo_ant = m2.group("saldo_ant")
+                        hs = m2.group("hs")
+                        saldo_atual = m2.group("saldo_atual")
+                    else:
+                        nome = nome_completo
+                        saldo_ant = ""
+                        hs = ""
+                        saldo_atual = ""
+
+                    funcionario = (fl_reg, matricula, nome, saldo_ant, hs, saldo_atual)
                     continue
             
             # ignora páginas sem funcionário
             if not funcionario:
                 continue
 
-            fl_reg, matricula, nome = funcionario
             nome_aba = nome.split("(")[0].strip()[:31]  # limita a 31 caracteres (limite do Excel)
 
             # Cria a aba do funcionário
@@ -144,7 +159,7 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
                 # Cálculos da novas colunas
                 turno_manha = diferenca_hora(hr_ent_m, hr_sai_m)
                 turno_tarde = diferenca_hora(hr_ent_t, hr_sai_t)
-                t_almoco = diferenca_hora(hr_sai_m, hr_ent_t)
+                t_almoco = "0:00" if hr_ent_t == "00:00" else diferenca_hora(hr_sai_m, hr_ent_t)
                 total = soma_horas(turno_manha, turno_tarde)
 
                 # Adiciona as 4 novas colunas ao final
@@ -155,10 +170,13 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
                     c.alignment = Alignment(horizontal="center", vertical="center")
 
             # ===== Adiciona a linha de identificação do funcionário =====
-            linha_info = [""] * 11
+            linha_info = [""] * 15
             linha_info[0] = fl_reg      # coluna A -> Fl Reg
             linha_info[2] = matricula   # coluna C -> Matrícula
             linha_info[4] = nome        # coluna E -> Nome completo
+            linha_info[6] = saldo_ant
+            linha_info[7] = hs
+            linha_info[8] = saldo_atual
 
             ultima_linha = len(linhas_ponto) + 2
             for j, valor in enumerate(linha_info, start=1):
