@@ -6,13 +6,13 @@ def analisar_verificacao(caminho_arquivo):
     # Carrega o workbook existente
     wb = load_workbook(caminho_arquivo)
 
-    # Remove a aba "OCORRÊNCIAS" se já existir
-    if "OCORRÊNCIAS" in wb.sheetnames:
-        del wb["OCORRÊNCIAS"]
+    # Remove a aba "RESUMO" se já existir
+    if "RESUMO" in wb.sheetnames:
+        del wb["RESUMO"]
 
-    # Cria nova aba OCORRÊNCIAS no início
-    aba_ocorrencias = wb.create_sheet("OCORRÊNCIAS", 0)
-    aba_ocorrencias.sheet_view.showGridLines = False
+    # Cria nova aba RESUMO no início
+    aba_resumo = wb.create_sheet("RESUMO", 0)
+    aba_resumo.sheet_view.showGridLines = False
 
     # Estilos
     center_align = Alignment(horizontal="center", vertical="center")
@@ -20,10 +20,10 @@ def analisar_verificacao(caminho_arquivo):
     borda_inferior = Border(bottom=Side(style="thin", color="000000"))
     preenchimento_verde = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
 
-    # Cabeçalho da aba OCORRÊNCIAS
+    # Cabeçalho da aba RESUMO
     cabecalho = ["Funcionário", "Data", "Ocorrência","Observações da folha de ponto"]
-    aba_ocorrencias.append(cabecalho)
-    for cel in aba_ocorrencias[1]:
+    aba_resumo.append(cabecalho)
+    for cel in aba_resumo[1]:
         cel.font = bold_font
         cel.alignment = center_align
         cel.border = borda_inferior
@@ -33,7 +33,7 @@ def analisar_verificacao(caminho_arquivo):
 
     # Percorre cada aba de funcionário
     for nome_aba in wb.sheetnames.copy():
-        if nome_aba == "OCORRÊNCIAS":
+        if nome_aba == "RESUMO":
             continue
 
         aba = wb[nome_aba]
@@ -57,7 +57,7 @@ def analisar_verificacao(caminho_arquivo):
 
             # ATESTADOS MÉDICOS
             if (ocorrencia.startswith("007") or ocorrencia.startswith("ATESTADO")):
-                aba_ocorrencias.append([nome_aba, data, "Atestado médico", ocorrencia_raw])
+                aba_resumo.append([nome_aba, data, "Atestado médico", ocorrencia_raw])
                 funcionarios_com_atestado.add(nome_aba)
                 # Pinta a linha
                 for cel in linha_celulas:
@@ -65,7 +65,7 @@ def analisar_verificacao(caminho_arquivo):
 
             # BANCO DE HORAS DEVENDO
             elif ocorrencia.startswith("008"):
-                aba_ocorrencias.append([nome_aba, data, "Banco de horas", ocorrencia_raw])
+                aba_resumo.append([nome_aba, data, "Banco de horas", ocorrencia_raw])
                 funcionarios_com_atestado.add(nome_aba)
                 # Pinta a linha
                 for cel in linha_celulas:
@@ -73,7 +73,7 @@ def analisar_verificacao(caminho_arquivo):
                 
             # ABONO
             elif ocorrencia.startswith("004"):
-                aba_ocorrencias.append([nome_aba, data, "Abono", ocorrencia_raw])
+                aba_resumo.append([nome_aba, data, "Abono", ocorrencia_raw])
                 funcionarios_com_atestado.add(nome_aba)
                 # Pinta a linha
                 for cel in linha_celulas:
@@ -94,20 +94,20 @@ def analisar_verificacao(caminho_arquivo):
                 if horas is not None and horas < 5: # Mostra saídas antecipadas acima de 1 hora
                     horas_compensar = 6 - horas
                     h, m = divmod(horas_compensar * 60, 60)
-                    aba_ocorrencias.append([nome_aba, data, "Saída antecipada", f"{int(h):02d}h{int(m):02d}min compensadas"])
+                    aba_resumo.append([nome_aba, data, "Saída antecipada", f"{int(h):02d}h{int(m):02d}min compensadas"])
                     funcionarios_com_atestado.add(nome_aba)
 
                     # Pinta a linha
                     for cel in linha_celulas:
                         cel.fill = preenchimento_verde
 
-    # Ajusta formatação da aba OCORRÊNCIAS
-    for coluna in aba_ocorrencias.columns:
+    # Ajusta formatação da aba RESUMO
+    for coluna in aba_resumo.columns:
         coluna_letra = coluna[0].column_letter
         max_len = max(len(str(cel.value)) if cel.value else 0 for cel in coluna)
-        aba_ocorrencias.column_dimensions[coluna_letra].width = max_len + 2
+        aba_resumo.column_dimensions[coluna_letra].width = max_len + 2
 
-    for linha in aba_ocorrencias.iter_rows(min_row=2):
+    for linha in aba_resumo.iter_rows(min_row=2):
         for cel in linha:
             cel.alignment = center_align
 

@@ -242,7 +242,7 @@ class FolhaPontoApp:
 
             if tipo == "Relatório de não conformidade":
                 analisar_conformidade(output_path)
-            if tipo == "Relatório de verificação":
+            elif tipo == "Relatório de verificação":
                 analisar_verificacao(output_path)
             else:
                 raise ValueError("Tipo de relatório desconhecido")

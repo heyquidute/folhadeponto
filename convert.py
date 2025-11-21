@@ -1,7 +1,7 @@
 from datetime import timedelta
 import re
 
-def str_para_tempo(valor):
+def to_time(valor):
     # Converte string "HH:MM" para objeto datetime.time
     if not valor:
         return None
@@ -10,3 +10,9 @@ def str_para_tempo(valor):
         return timedelta(hours=h, minutes=m)
     except:
         return None  
+    
+def to_float(valor):
+    try:
+        return float(str(valor).replace(",", "."))
+    except:
+        return 0

@@ -17,8 +17,7 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
     colunas = [
         "Data", "Dia", "Hr Ent M", "Hr Sai M", "Hr Ent T", "Hr Sai T",
         "Hr Tot T", "Hr Falta", "Hr Extra", "Hr Usada", "Ocorrencia",
-        "Turno Manhã", "T Almoço", "Turno Tarde", "Total",
-        "Saldo Ant", "HS", "Saldo Atual"
+        "Turno Manhã", "T Almoço", "Turno Tarde", "Total"
     ]
 
     # ===== Função que normaliza uma linha de ponto =====
