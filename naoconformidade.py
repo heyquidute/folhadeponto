@@ -3,6 +3,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Font, Border, Side, PatternFill
 
 from convert import to_time, to_float
+from cria_link import link_aba_funcionario, link_retorno
 
 def analisar_conformidade(caminho_arquivo):
     # Carrega o workbook existente
@@ -68,6 +69,9 @@ def analisar_conformidade(caminho_arquivo):
                 for cell in linha_celulas:
                     cell.fill = preenchimento_amarelo
                 aba_resumo.append([nome_aba, data, "Almoço < 1h", f"Tempo de almoço: {t_almoco}"])
+
+                # cria hyperlink para aba da ocorrencia
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="M")
             
             # TEMPO DE ALMOÇO MAIOR QUE 1 HORA E 20 MINUTOS
             elif t_almoco and t_almoco > timedelta(hours=1, minutes=20):
@@ -75,22 +79,34 @@ def analisar_conformidade(caminho_arquivo):
                     cell.fill = preenchimento_amarelo
                 aba_resumo.append([nome_aba, data, "Almoço > 1h20min", f"Tempo de almoço: {t_almoco}"])
 
+                # cria hyperlink para aba da ocorrencia
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="M")
+                
             # TURNO COM MAIS DE 6 HORAS SEM INTERVALO
             if t_manha and t_manha > timedelta(hours=6):
                 for cell in linha_celulas:
                     cell.fill = preenchimento_amarelo
                 aba_resumo.append([nome_aba, data, "Turno da manhã > 6h", f"Duração do turno: {t_manha}"])
 
+                # cria hyperlink para aba da ocorrencia
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="L")
+
             if t_tarde and t_tarde > timedelta(hours=6):
                 for cell in linha_celulas:
                     cell.fill = preenchimento_amarelo
                 aba_resumo.append([nome_aba, data, "Turno da tarde > 6h", f"Duração do turno: {t_tarde}"])
+
+                # cria hyperlink para aba da ocorrencia
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="N")
             
             # JORNADA TOTAL ACIMA DE 10 HORAS
             if t_total and t_total > timedelta(hours=10):
                 for cell in linha_celulas:
                     cell.fill = preenchimento_amarelo
                 aba_resumo.append([nome_aba, data, "Jornada > 10h", f"Jornada total: {t_total}"])
+
+                # cria hyperlink para aba da ocorrencia
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="O")
 
             #ERRO NA BATIDA
             try:
@@ -103,6 +119,9 @@ def analisar_conformidade(caminho_arquivo):
                     cel.fill = preenchimento_laranja
 
                 aba_resumo.append([nome_aba,data,"Diferente de 4 batidas",""])
+
+                # cria hyperlink para aba da ocorrencia
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="G")
         
         #SALDO DE HORAS NEGATIVO
         valor_saldo_hora = to_float(aba.cell(row=max_linha, column=9).value)
@@ -110,6 +129,14 @@ def analisar_conformidade(caminho_arquivo):
             for cel in aba[max_linha]:
                 cel.fill = preenchimento_azul
             aba_resumo.append([nome_aba,"", "Saldo de hora negativo", f"Saldo atual: {valor_saldo_hora}"])
+
+            # cria hyperlink para aba da ocorrencia
+            link_aba_funcionario(
+                aba_resumo=aba_resumo, 
+                linha_celulas=[aba.cell(row=max_linha, column=1)], 
+                nome_aba=nome_aba, 
+                coluna="I"
+            )
 
     # Ajusta formatação da aba RESUMO
     for coluna in aba_resumo.columns:
@@ -121,5 +148,6 @@ def analisar_conformidade(caminho_arquivo):
         for cel in linha:
             cel.alignment = center_align
 
+    link_retorno(wb)
     wb.save(caminho_arquivo)
     print(f"Arquivo salvo com sucesso:\n{caminho_arquivo}")

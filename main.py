@@ -95,7 +95,6 @@ class FolhaPontoApp:
         ).pack(side="left", padx=(0, 6))
 
         # Combobox para escolher o tipo de relatório
-        self.tipo_relatorio = tk.StringVar()
         self.combo_tipo = ttk.Combobox(
             tipo_frame,
             textvariable=self.tipo_relatorio,

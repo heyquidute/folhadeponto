@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Font, Border, Side, PatternFill
 
+from cria_link import link_aba_funcionario, link_retorno
+
 def analisar_verificacao(caminho_arquivo):
     # Carrega o workbook existente
     wb = load_workbook(caminho_arquivo)
@@ -62,6 +64,8 @@ def analisar_verificacao(caminho_arquivo):
                 # Pinta a linha
                 for cel in linha_celulas:
                     cel.fill = preenchimento_verde
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
+
 
             # BANCO DE HORAS DEVENDO
             elif ocorrencia.startswith("008"):
@@ -70,6 +74,7 @@ def analisar_verificacao(caminho_arquivo):
                 # Pinta a linha
                 for cel in linha_celulas:
                     cel.fill = preenchimento_verde
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
                 
             # ABONO
             elif ocorrencia.startswith("004"):
@@ -78,6 +83,7 @@ def analisar_verificacao(caminho_arquivo):
                 # Pinta a linha
                 for cel in linha_celulas:
                     cel.fill = preenchimento_verde
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
 
             elif ocorrencia.startswith("014"):
                 horas = None
@@ -100,6 +106,7 @@ def analisar_verificacao(caminho_arquivo):
                     # Pinta a linha
                     for cel in linha_celulas:
                         cel.fill = preenchimento_verde
+                    link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
 
     # Ajusta formatação da aba RESUMO
     for coluna in aba_resumo.columns:
@@ -111,5 +118,6 @@ def analisar_verificacao(caminho_arquivo):
         for cel in linha:
             cel.alignment = center_align
 
+    link_retorno(wb)
     wb.save(caminho_arquivo)
     print(f"Arquivo salvo com sucesso:\n{caminho_arquivo}")
