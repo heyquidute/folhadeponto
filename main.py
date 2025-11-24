@@ -13,7 +13,7 @@ class FolhaPontoApp:
     def __init__(self, root):
         # --- Configuração da janela principal ---
         self.root = root
-        self.root.title("Gerador de Relatório da Folha de Ponto")
+        self.root.title("Processador de Folha de Ponto")
         self.root.geometry("620x380")
         self.root.configure(bg="#eef1f6")
         self.root.resizable(False, False)
@@ -68,7 +68,7 @@ class FolhaPontoApp:
 
         title_label = tk.Label(
             header_frame,
-            text="Gerador de Relatório da Folha de Ponto \n COMANDO",
+            text="Processador de Folha de Ponto \n COMANDO",
             font=("Segoe UI", 14, "bold"),
             fg="white",
             bg="#034794"

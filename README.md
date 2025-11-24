@@ -1,150 +1,160 @@
-# 🧾 Analisador da Folha de Ponto
+# **Processador de Folha de Ponto**
 
-![Screenshot da Interface](/assets/imagem.png)
-
-Interface gráfica em **Python (Tkinter)** para automatizar a extração e análise de folhas de ponto em PDF, permitindo gerar relatórios detalhados de **atestados**, **horários** e **batidas** de funcionários.
+Sistema interno da **Comando Auto Peças** para leitura, análise e geração automática de relatórios de ponto.
 
 ---
 
-## 📌 Visão Geral
+## 📌 **Descrição**
 
-O **Analisador da Folha de Ponto** é uma ferramenta desenvolvida para facilitar a leitura e interpretação de folhas de ponto emitidas em formato PDF.
+Sistema que lê arquivos **PDF de folha de ponto** e gera automaticamente:
 
-O sistema extrai automaticamente as informações, gera um arquivo Excel organizado e realiza análises específicas conforme o tipo de relatório escolhido.
+* Arquivo Excel consolidado
+* Relatório de Verificação
+* Relatório de Não Conformidade
 
-A interface é simples, moderna e intuitiva — basta selecionar o PDF e escolher o tipo de relatório desejado.
-
----
-
-## ⚙️ Funcionalidades Principais
-
-* 📂 **Leitura automática de PDFs** de folha de ponto.
-
-* 📊 **Geração de relatórios personalizados** em Excel:
-
-    - **Relatório de horários:** analisa entradas, saídas e períodos de trabalho.
-
-    - **Relatório de atestados:** identifica e registra atestados médicos.
-
-    - **Relatório de divergência:** detecta e lista dias com marcações incorretas.
-
-* 🎨 **Interface gráfica amigável (Tkinter)**, sem necessidade de comandos no terminal.
-
-* 📁 **Arquivos de saída organizados** com sufixos descritivos:
-
-    - `_horarios.xlsx` → Relatório de horários
-
-    - `_atestados.xlsx` → Relatório de atestados
-
-    - `_batidasdeponto.xlsx` → Relatório de inconsistências
-
-    - `_processado.xlsx` → Caso o tipo de relatório não seja reconhecido
-
-* 🧠 **Processamento seguro e não bloqueante**, com barra de progresso e opção de cancelamento.
-
-* 🖋️ **Formatação automática no Excel** (cabeçalhos, cores, alinhamento e colunas ajustadas).
+Desenvolvido para facilitar a conferência de ponto dos colaboradores e agilizar o processo interno.
 
 ---
 
-## 🖥️ Como Usar
+## 🖥️ **Como usar o programa (.EXE)**
 
-1. Execute o aplicativo:
+1. Execute o programa "ProcessadorFolhaPonto" e selecione o **Tipo de Relatório** que você quer:
 
-```bash
-python main.py
-```
+  ![Screenshot do passo 1](/assets/passo1.png)
 
-2. Na janela que abrir:
+2. Na janela, clique em:
 
-   * Clique em **“Selecionar PDF”** e escolha o arquivo da folha de ponto.
+   * **“Selecionar PDF”** → escolha o arquivo de ponto que deseja analisar
 
-   * Escolha o tipo de relatório desejado:
+   ![Screenshot do passo 2](/assets/passo2.png)
 
-       - **Relatório de horários**
-       - **Relatório de atestados**
-       - **Relatório de inconsistências**
+   * O nome do arquivo selecionado aparecerá na tela
 
-   * Clique em **“Processar”**.
+   ![Screenshot do passo 3](/assets/passo3.png)
 
-3. Aguarde o processamento (a barra de progresso mostrará o andamento).
+3. Em seguida clique em **“Processar”** e aguarde. Você consegue acompanhar o processamento pela barra de progresso.
 
-4. O arquivo Excel será salvo automaticamente na mesma pasta do PDF selecionado.
+   ![Screenshot do passo 4](/assets/passo4.png)
 
----
+4. Quando terminar, aparecerá uma mensagem informando que o arquivo foi salvo.
 
-## 📂 Estrutura do Projeto
+    ![Screenshot do passo 5](/assets/passo5.png)
+
+5. O excel será salvo **na mesma pasta onde está o pdf selecionado**.
+
+    ![Screenshot do passo 6](/assets/passo6.png)
+
+## 📂 **Estrutura do Projeto**
 
 ```
-📁 AnalisadorFolhaPonto/
-├── main.py                 # Interface principal (Tkinter)
-├── extrair_tabela.py       # Responsável por extrair dados do PDF e gerar Excel
-├── analisar_folha.py       # Gera o relatório de horários
-├── analisar_atestados.py   # Gera o relatório de atestados
-├── analisar_batidas.py # Gera o relatório de inconsistências
-├── icone.ico               # Ícone da aplicação
-└── README.md               # Documentação do projeto
+📦 Processador de Folha de Ponto
+│
+├── main.py              → Interface gráfica (Tkinter)
+├── extrair_tabela.py    → Lê os PDFs e gera tabelas em Excel
+├── verificacao.py       → Gera o relatório de verificação
+├── naoconformidade.py   → Gera o relatório de não conformidade
+├── cria_link.py         → Cria links e navegação entre abas no Excel
+├── convert.py           → Funções de conversão de horário e números
+└── outros arquivos de suporte
 ```
+> Essa é a organização interna dos arquivos do sistema, caso seja necessário manutenção ou consulta técnica.
+---
+
+## 📘 **Detalhamento das Regras de Análise**
+
+A seguir estão as regras **detalhadas** utilizadas nos dois principais relatórios:
 
 ---
 
-## 🧠 Lógica de Funcionamento
+# 📝 **Relatório de Verificação (`verificacao.py`)**
 
-1. O **usuário seleciona o PDF** e o **tipo de relatório**.
-2. O aplicativo chama a função `gerar_excel()` (em `extrair_tabela.py`) para extrair e converter o conteúdo do PDF em Excel.
-3. Dependendo do tipo de relatório selecionado:
+Este relatório verifica **ocorrências específicas**, gerando uma aba Resumo para ser analisada.
 
-   * Chama `analisar_folha()` → gera arquivo `_horarios.xlsx`
-   * Chama `analisar_atestados()` → gera arquivo `_atestados.xlsx`
-   * Chama `analisar_batidas()` → gera arquivo `_batidasdeponto.xlsx`
-4. Caso o tipo de relatório não seja reconhecido, o programa gera um arquivo `_processado.xlsx`.
+### ✔️ Lógica da condição:
 
----
+### **1. Atestados médicos**
 
-## 🧾 Relatórios Gerados
+Indica quantidade de atestados médicos no período. 
+>O programa verifica se o texto da coluna de Ocorrências começa com **"007"** ou **"ATESTADO"**. Se sim, cria uma linha na aba Resumo com os dados.
 
-### 🕐 Relatório de Horários
+### **2. Banco de horas**
 
-Analisa os dados de ponto (entrada, almoço, saída) e calcula totais e diferenças de horários por funcionário.
+Indica saídas antecipadas onde as horas vão como saldo negativo para o banco de horas.
+>O programa verifica se o texto da coluna de Ocorrências começa com **"008"**. Se sim, cria uma linha na aba Resumo com os dados.
 
-### 🩺 Relatório de Atestados
+### **3. Abono**
 
-* Cria uma aba chamada **ATESTADOS** no início da planilha.
-* Lista o **nome do funcionário**, **data** e **detalhe** (texto completo da ocorrência).
-* As linhas correspondentes a atestados são **pintadas de verde** nas abas individuais dos funcionários.
-* O cabeçalho é formatado com **negrito, centralização e borda inferior**.
-* As colunas têm **largura ajustada automaticamente**, e **as linhas de grade são ocultadas**.
+Indica saídas antecipadas onde as horas NÃO vão como saldo negativo para o banco de horas.
+> Verifica se o texto da coluna de Ocorrências começa com **"004"**. Se sim, cria uma linha na aba Resumo com os dados.
 
-### ⚠️ Relatório de Divergências
+### **4. Saída antecipada**
 
-* Gera uma aba chamada **DIVERGENCIA** no início da planilha.
-* Identifica e lista dias com quantidade de **batidas incompletas**.
-* Cada linha apresenta o **nome do funcionário** e **data**.
-* As células com erro são destacadas com **fundo azul claro** para fácil visualização.
-* O layout segue o mesmo padrão visual dos outros relatórios (formatação automática, cabeçalhos e colunas ajustadas).
+Indica saídas antecipadas usando as horas que tem na casa.
+> Verifica se o texto da coluna de Ocorrências começa com **"014"**. Se sim, cria uma linha na aba Resumo com os dados.
 
 ---
 
-## 🧩 Tecnologias Utilizadas
+# 🛑 **Relatório de Não Conformidade (`naoconformidade.py`)**
 
-* **Python 3**
-* **Tkinter** → Interface gráfica
-* **openpyxl** → Manipulação e formatação de planilhas Excel
-* **pdfplumber** → Leitura e extração de dados de PDFs
-* **threading** → Processamento paralelo (mantém a interface fluida)
+Este relatório aponta **inconsistências nos horários de batidas** que precisam de uma atenção maior.
+### ✔️ Lógica da condição:
+
+### **1. Almoço < 1h**
+
+Verifica se o tempo de almoço foi menor que 1 hora. 
+>O programa verifica se o valor na **coluna "T Almoço" é menor que 1:00**. Se sim, cria uma linha na aba Resumo com os dados.
+
+### **2. Almoço > 1h20min**
+
+Verifica se o tempo de almoço foi maior que 1 hora e 20 minutos. 
+>O programa verifica se o valor na **coluna "T Almoço" é maior que 1:20**. Se sim, cria uma linha na aba Resumo com os dados.
+
+### **3. Turno da Manhã/Tarde > 6h**
+
+Verifica se o tempo de um dos turnos foi maior que 6 horas. 
+>O programa verifica se o valor na **coluna "Turno Manhã" ou na coluna "Turno Tarde" é maior que 6:00**. Se sim, cria uma linha na aba Resumo com os dados.
+
+### **4. Jornada > 10h**
+
+Verifica se o tempo da jornada diário foi maior que 10 horas. 
+>O programa verifica se o valor na **coluna "Total" é maior que 10:00**. Se sim, cria uma linha na aba Resumo com os dados.
+
+### **5. Saldo de hora negativo**
+
+Verifica se o saldo atual de horas está negativo. 
+>O programa verifica se é negativo o valor da **última célula da coluna I** *(é onde está a informação do saldo atual, seguindo a formatação da folha de ponto)*. Se sim, cria uma linha na aba Resumo com os dados.
 
 ---
 
-## 🧠 Boas Práticas
+## 🔗 **Criação de Links**
+#### Ao clicar nos nomes na coluna "Funcionário" da aba Resumo, você será redirecionado à aba do funcionário. E na célula A1 de cada aba de funcionário tem o link que retorna para a aba Resumo.
 
-* Use **arquivos PDF legíveis (não escaneados)** para garantir extração correta.
-* Mantenha o nome das colunas originais no Excel extraído.
-* Não modifique manualmente o arquivo Excel gerado antes de finalizar a análise.
-* Sempre revise o relatório para identificar e corrigir possíveis falhas.
+O módulo `cria_link.py` cria automaticamente:
+
+* Link de cada colaborador → aba individual
+* Link de retorno → aba RESUMO
+* Navegação organizada entre relatórios
 
 ---
 
-## 👩‍💻 Créditos
+## ⏱️ **Conversões Internas**
+
+O módulo `convert.py` trata:
+
+* Conversão de texto para horário
+* Conversão de horas para número decimal
+* Ajustes de formatação
+
+---
+
+## 🏷️ **Licença**
+
+Este projeto **não possui licença aberta**.
+
+✔️ Uso interno exclusivo da **Comando Auto Peças**.
+
+---
+
+## 👩‍💻 **Créditos**
 
 **Desenvolvido por Ana Clara Quidute**
-
-Projeto: **“Analisador da Folha de Ponto”**
