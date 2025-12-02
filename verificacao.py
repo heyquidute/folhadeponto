@@ -42,18 +42,19 @@ def analisar_verificacao(caminho_arquivo):
 
         # Pega cabeçalhos da aba
         cabecalhos = [celula.value for celula in next(aba.iter_rows(min_row=1, max_row=1))]
-        if "Data" not in cabecalhos or "Ocorrencia" not in cabecalhos or "Total" not in cabecalhos:
+        if "Data" not in cabecalhos or "Ocorrência" not in cabecalhos or "Total" not in cabecalhos:
             continue
 
         idx_data = cabecalhos.index("Data") + 1
-        idx_ocorrencia = cabecalhos.index("Ocorrencia") + 1
+        idx_ocorrencia = cabecalhos.index("Ocorrência") + 1
         idx_total = cabecalhos.index("Total") + 1
+        idx_falta = cabecalhos.index("Hr Falta") + 1
 
         # Percorre as linhas da aba do funcionário
         for linha_celulas in aba.iter_rows(min_row=2):
             data = linha_celulas[idx_data - 1].value
             ocorrencia_raw = linha_celulas[idx_ocorrencia - 1].value
-            total_raw = linha_celulas[idx_total - 1].value
+            hr_falta = linha_celulas[idx_falta - 1].value
 
             ocorrencia = str(ocorrencia_raw).strip().upper()
 
@@ -64,8 +65,38 @@ def analisar_verificacao(caminho_arquivo):
                 # Pinta a linha
                 for cel in linha_celulas:
                     cel.fill = preenchimento_verde
-                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
+                link_aba_funcionario(
+                    aba_resumo=aba_resumo, 
+                    linha_celulas=linha_celulas, 
+                    nome_aba=nome_aba, 
+                    coluna="K"
+                    )
+            
+            # COMPENSAÇÃO DE HORAS
+            elif ocorrencia.startswith("434"):
+                aba_resumo.append([nome_aba, data, "Compensação de horas", ocorrencia_raw])
+                # Pinta a linha
+                for cel in linha_celulas:
+                    cel.fill = preenchimento_verde
+                link_aba_funcionario(
+                    aba_resumo=aba_resumo,
+                    linha_celulas=linha_celulas,
+                    nome_aba=nome_aba,
+                    coluna="K"
+                )
 
+            # SUSPENSÃO
+            elif ocorrencia.startswith("010"):
+                aba_resumo.append([nome_aba, data, "Suspensão", ocorrencia_raw])
+                # Pinta a linha
+                for cel in linha_celulas:
+                    cel.fill = preenchimento_verde
+                link_aba_funcionario(
+                    aba_resumo=aba_resumo,
+                    linha_celulas=linha_celulas,
+                    nome_aba=nome_aba,
+                    coluna="K"
+                )
 
             # BANCO DE HORAS DEVENDO
             elif ocorrencia.startswith("008"):
@@ -85,28 +116,18 @@ def analisar_verificacao(caminho_arquivo):
                     cel.fill = preenchimento_verde
                 link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
 
+            # SAÍDA ANTECIPADA
             elif ocorrencia.startswith("014"):
-                horas = None
-                if isinstance(total_raw, timedelta):
-                    horas = total_raw.total_seconds() / 3600
-                elif isinstance(total_raw, datetime):
-                    horas = total_raw.hour + total_raw.minute / 60
-                elif isinstance(total_raw, str):
-                    try:
-                        partes = total_raw.split(":")
-                        horas = int(partes[0]) + int(partes[1]) / 60
-                    except:
-                        pass
-                if horas is not None and horas < 5: # Mostra saídas antecipadas acima de 1 hora
-                    horas_compensar = 6 - horas
-                    h, m = divmod(horas_compensar * 60, 60)
-                    aba_resumo.append([nome_aba, data, "Saída antecipada", f"{int(h):02d}h{int(m):02d}min compensadas"])
-                    funcionarios_com_atestado.add(nome_aba)
+                aba_resumo.append([nome_aba, data, "Saída antecipada", f"{ocorrencia_raw} - {hr_falta}"])
+                link_aba_funcionario(
+                    aba_resumo=aba_resumo,
+                    linha_celulas=linha_celulas,
+                    nome_aba=nome_aba,
+                    coluna="K"
+                )
+                for cel in linha_celulas:
+                    cel.fill = preenchimento_verde
 
-                    # Pinta a linha
-                    for cel in linha_celulas:
-                        cel.fill = preenchimento_verde
-                    link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
 
     # Ajusta formatação da aba RESUMO
     for coluna in aba_resumo.columns:

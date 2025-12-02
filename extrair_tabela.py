@@ -16,7 +16,7 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
     # ===== Cabeçalho padrão =====
     colunas = [
         "Data", "Dia", "Hr Ent M", "Hr Sai M", "Hr Ent T", "Hr Sai T",
-        "Hr Tot T", "Hr Falta", "Hr Extra", "Hr Usada", "Ocorrencia",
+        "Hr Tot T", "Hr Falta", "Hr Extra", "Hr Usada", "Ocorrência",
         "Turno Manhã", "T Almoço", "Turno Tarde", "Total"
     ]
 
@@ -81,8 +81,14 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
                 m = re.match(r"^(\d{2})\s+(\d{6})\s+(.+)$", ln)
                 if m:
                     fl_reg, matricula, nome_completo = m.groups()
+                    print(f"DEBUG: '{nome_completo}'")
 
-                    m2 = re.match(r"^(?P<nome>.+?)\s+(?P<saldo_ant>-?\d+\.\d+)\s+(?P<hs>-?\d+\.\d+)\s+(?P<saldo_atual>-?\d+\.\d+)$", nome_completo)
+                    #m2 = re.match(r"^(?P<nome>.+?)\s+(?P<saldo_ant>-?\d+\.\d+)\s+(?P<hs>-?\d+\.\d+)\s+(?P<saldo_atual>-?\d+\.\d+)$", nome_completo)
+                    
+                    m2 = re.search(
+                        r"^(?P<nome>.+?)\s+(?P<saldo_ant>-?\d+[,.]?\d*)\s+(?P<hs>-?\d+[,.]?\d*)\s+(?P<saldo_atual>-?\d+[,.]?\d*)\s*$", 
+                        nome_completo
+                    )
 
                     if m2:
                         nome = m2.group("nome").strip()
@@ -90,10 +96,19 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
                         hs = m2.group("hs")
                         saldo_atual = m2.group("saldo_atual")
                     else:
-                        nome = nome_completo
-                        saldo_ant = ""
-                        hs = ""
-                        saldo_atual = ""
+                        # Se a regex não funcionou, tenta extrair manualmente
+                        partes = nome_completo.split()
+                        if len(partes) >= 3:
+                            # Pega os 3 últimos elementos como saldos
+                            saldo_atual = partes[-1].replace(",", ".")
+                            hs = partes[-2].replace(",", ".")
+                            saldo_ant = partes[-3].replace(",", ".")
+                            nome = " ".join(partes[:-3])
+                        else:
+                            nome = nome_completo
+                            saldo_ant = ""
+                            hs = ""
+                            saldo_atual = ""
 
                     funcionario = (fl_reg, matricula, nome, saldo_ant, hs, saldo_atual)
                     continue

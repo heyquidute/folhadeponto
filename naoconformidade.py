@@ -42,11 +42,12 @@ def analisar_conformidade(caminho_arquivo):
 
         # Pega cabeçalhos da aba
         cabecalhos = [celula.value for celula in next(aba.iter_rows(min_row=1, max_row=1))]
-        if "Data" not in cabecalhos or "Ocorrencia" not in cabecalhos or "Total" not in cabecalhos:
+        if "Data" not in cabecalhos or "Ocorrência" not in cabecalhos or "Total" not in cabecalhos:
             continue
 
         idx_data = cabecalhos.index("Data") + 1
-        idx_hrtot = cabecalhos.index("Hr Tot T")+1
+        idx_hrtot = cabecalhos.index("Hr Tot T") + 1
+        idx_hrsai = cabecalhos.index("Hr Sai T") + 1
 
         max_col = aba.max_column
         max_linha = aba.max_row
@@ -63,6 +64,7 @@ def analisar_conformidade(caminho_arquivo):
             t_tarde = to_time(linha_celulas[col_turno_tarde - 1].value)
             t_total = to_time(linha_celulas[col_total - 1].value)
             valor_hrtot = linha_celulas[idx_hrtot-1].value
+            hora_saida = to_time(linha_celulas[idx_hrsai - 1].value)
 
             # TEMPO DE ALMOÇO MENOR QUE 1 HORA
             if t_almoco and t_almoco < timedelta(hours=1):
@@ -86,7 +88,7 @@ def analisar_conformidade(caminho_arquivo):
             if t_manha and t_manha > timedelta(hours=6):
                 for cell in linha_celulas:
                     cell.fill = preenchimento_amarelo
-                aba_resumo.append([nome_aba, data, "Turno da manhã > 6h", f"Duração do turno: {t_manha}"])
+                aba_resumo.append([nome_aba, data, "Período da manhã > 6h", f"Duração do período: {t_manha}"])
 
                 # cria hyperlink para aba da ocorrencia
                 link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="L")
@@ -94,7 +96,7 @@ def analisar_conformidade(caminho_arquivo):
             if t_tarde and t_tarde > timedelta(hours=6):
                 for cell in linha_celulas:
                     cell.fill = preenchimento_amarelo
-                aba_resumo.append([nome_aba, data, "Turno da tarde > 6h", f"Duração do turno: {t_tarde}"])
+                aba_resumo.append([nome_aba, data, "Período da tarde > 6h", f"Duração do período: {t_tarde}"])
 
                 # cria hyperlink para aba da ocorrencia
                 link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="N")
@@ -108,6 +110,13 @@ def analisar_conformidade(caminho_arquivo):
                 # cria hyperlink para aba da ocorrencia
                 link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="O")
 
+            # SAIU DEPOIS DE 22H
+            if hora_saida and hora_saida > timedelta(hours=22):
+                for cell in linha_celulas:
+                    cell.fill = preenchimento_amarelo
+                aba_resumo.append([nome_aba, data, "Saída após 22h", f"Horário de saída: {hora_saida}"])
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="F")
+                
             #ERRO NA BATIDA
             try:
                 negativo = "-" in str(valor_hrtot) or valor_hrtot.startswith("−")
@@ -117,9 +126,7 @@ def analisar_conformidade(caminho_arquivo):
             if negativo:
                 for cel in linha_celulas:
                     cel.fill = preenchimento_laranja
-
-                aba_resumo.append([nome_aba,data,"Diferente de 4 batidas",""])
-
+                aba_resumo.append([nome_aba,data,"Quantidade ímpar de batidas",""])
                 # cria hyperlink para aba da ocorrencia
                 link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="G")
         
