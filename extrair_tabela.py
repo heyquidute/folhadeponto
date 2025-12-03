@@ -81,7 +81,6 @@ def gerar_excel(pdf_path, output_path="folha_ponto_processada.xlsx", progress_ca
                 m = re.match(r"^(\d{2})\s+(\d{6})\s+(.+)$", ln)
                 if m:
                     fl_reg, matricula, nome_completo = m.groups()
-                    print(f"DEBUG: '{nome_completo}'")
 
                     #m2 = re.match(r"^(?P<nome>.+?)\s+(?P<saldo_ant>-?\d+\.\d+)\s+(?P<hs>-?\d+\.\d+)\s+(?P<saldo_atual>-?\d+\.\d+)$", nome_completo)
                     
