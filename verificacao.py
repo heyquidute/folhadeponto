@@ -86,7 +86,7 @@ def analisar_verificacao(caminho_arquivo):
                 )
 
             # SUSPENSÃO
-            elif ocorrencia.startswith("010"):
+            elif ocorrencia.startswith("010") or ocorrencia.startswith("SUSPENS"):
                 aba_resumo.append([nome_aba, data, "Suspensão", ocorrencia_raw])
                 # Pinta a linha
                 for cel in linha_celulas:
@@ -99,7 +99,7 @@ def analisar_verificacao(caminho_arquivo):
                 )
 
             # BANCO DE HORAS DEVENDO
-            elif ocorrencia.startswith("008"):
+            elif ocorrencia.startswith("008") or ocorrencia.startswith("BANCO DE HORA"):
                 aba_resumo.append([nome_aba, data, "Banco de horas", ocorrencia_raw])
                 funcionarios_com_atestado.add(nome_aba)
                 # Pinta a linha
@@ -108,7 +108,7 @@ def analisar_verificacao(caminho_arquivo):
                 link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
                 
             # ABONO
-            elif ocorrencia.startswith("004"):
+            elif ocorrencia.startswith("004") or ocorrencia.startswith("ABONO"):
                 aba_resumo.append([nome_aba, data, "Abono", ocorrencia_raw])
                 funcionarios_com_atestado.add(nome_aba)
                 # Pinta a linha
