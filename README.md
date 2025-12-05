@@ -18,7 +18,7 @@ Desenvolvido para facilitar a conferência de ponto dos colaboradores e agilizar
 
 ## 🖥️ **Como usar o programa (.EXE)**
 
-1. Execute o programa "ProcessadorFolhaPonto" e selecione o **Tipo de Relatório** que você quer:
+1. Execute o arquivo **"Processador Folha de Ponto.exe"** e selecione o **Tipo de Relatório** que você quer:
 
   ![Screenshot do passo 1](/assets/passo1.png)
 
@@ -55,6 +55,7 @@ Desenvolvido para facilitar a conferência de ponto dos colaboradores e agilizar
 ├── naoconformidade.py   → Gera o relatório de não conformidade
 ├── cria_link.py         → Cria links e navegação entre abas no Excel
 ├── convert.py           → Funções de conversão de horário e números
+├── dist       → Funções de conversão de horário e números
 └── outros arquivos de suporte
 ```
 > Essa é a organização interna dos arquivos do sistema, caso seja necessário manutenção ou consulta técnica.
@@ -80,17 +81,27 @@ Indica quantidade de atestados médicos no período.
 ### **2. Banco de horas**
 
 Indica saídas antecipadas onde as horas vão como saldo negativo para o banco de horas.
->O programa verifica se o texto da coluna de Ocorrências começa com **"008"**. Se sim, cria uma linha na aba Resumo com os dados.
+>O programa verifica se o texto da coluna de Ocorrências começa com **"008"** ou com **"BANCO DE HORAS"**. Se sim, cria uma linha na aba Resumo com os dados.
 
 ### **3. Abono**
 
 Indica saídas antecipadas onde as horas NÃO vão como saldo negativo para o banco de horas.
-> Verifica se o texto da coluna de Ocorrências começa com **"004"**. Se sim, cria uma linha na aba Resumo com os dados.
+> Verifica se o texto da coluna de Ocorrências começa com **"004"** ou com **"ABONO"**. Se sim, cria uma linha na aba Resumo com os dados.
 
 ### **4. Saída antecipada**
 
 Indica saídas antecipadas usando as horas que tem na casa.
 > Verifica se o texto da coluna de Ocorrências começa com **"014"**. Se sim, cria uma linha na aba Resumo com os dados.
+
+### **5. Compensação de horas**
+
+> Verifica se o texto da coluna de Ocorrências começa com **"434"**. Se sim, cria uma linha na aba Resumo com os dados.
+
+### **6. Suspensão**
+
+Verifica se há alguma suspensão identificada na folha de ponto
+> Verifica se o texto da coluna de Ocorrências começa com **"010"** ou com **"SUSPENS"**. Se sim, cria uma linha na aba Resumo com os dados.
+
 
 ---
 
@@ -109,9 +120,9 @@ Verifica se o tempo de almoço foi menor que 1 hora.
 Verifica se o tempo de almoço foi maior que 1 hora e 20 minutos. 
 >O programa verifica se o valor na **coluna "T Almoço" é maior que 1:20**. Se sim, cria uma linha na aba Resumo com os dados.
 
-### **3. Turno da Manhã/Tarde > 6h**
+### **3. Período da Manhã/Tarde > 6h**
 
-Verifica se o tempo de um dos turnos foi maior que 6 horas. 
+Verifica se o tempo de um dos períodos foi maior que 6 horas. 
 >O programa verifica se o valor na **coluna "Turno Manhã" ou na coluna "Turno Tarde" é maior que 6:00**. Se sim, cria uma linha na aba Resumo com os dados.
 
 ### **4. Jornada > 10h**
@@ -119,7 +130,12 @@ Verifica se o tempo de um dos turnos foi maior que 6 horas.
 Verifica se o tempo da jornada diário foi maior que 10 horas. 
 >O programa verifica se o valor na **coluna "Total" é maior que 10:00**. Se sim, cria uma linha na aba Resumo com os dados.
 
-### **5. Saldo de hora negativo**
+### **5. Saiu depois de 22h**
+
+Verifica se o funcionário saiu após 22h. 
+>O programa verifica se o valor na **coluna "Hr Sai T" é maior que 22:00**. Se sim, cria uma linha na aba Resumo com os dados.
+
+### **6. Saldo de hora negativo**
 
 Verifica se o saldo atual de horas está negativo. 
 >O programa verifica se é negativo o valor da **última célula da coluna I** *(é onde está a informação do saldo atual, seguindo a formatação da folha de ponto)*. Se sim, cria uma linha na aba Resumo com os dados.
