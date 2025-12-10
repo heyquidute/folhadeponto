@@ -108,7 +108,17 @@ def analisar_verificacao(caminho_arquivo):
                 link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="K")
                 
             # ABONO
-            elif ocorrencia.startswith("004") or ocorrencia.startswith("ABONO"):
+            elif (
+                ocorrencia.startswith("004") or 
+                ocorrencia.startswith("ABONO") or
+                ocorrencia.startswith("EXAMES") or
+                ocorrencia.startswith("LICENCA") or
+                ocorrencia.startswith("ALISTAMENTO") or
+                ocorrencia.startswith("DOACAO") or
+                ocorrencia.startswith("ACOMP") or
+                ocorrencia.startswith("DECLARAC") or
+                ocorrencia.startswith("CERTIDAO")
+            ):
                 aba_resumo.append([nome_aba, data, "Abono", ocorrencia_raw])
                 funcionarios_com_atestado.add(nome_aba)
                 # Pinta a linha
@@ -118,7 +128,7 @@ def analisar_verificacao(caminho_arquivo):
 
             # SAÍDA ANTECIPADA
             elif ocorrencia.startswith("014"):
-                aba_resumo.append([nome_aba, data, "Saída antecipada", f"{ocorrencia_raw} - {hr_falta}"])
+                aba_resumo.append([nome_aba, data, "Saída antecipada", ocorrencia_raw])
                 link_aba_funcionario(
                     aba_resumo=aba_resumo,
                     linha_celulas=linha_celulas,
@@ -128,6 +138,17 @@ def analisar_verificacao(caminho_arquivo):
                 for cel in linha_celulas:
                     cel.fill = preenchimento_verde
 
+            # FALTA
+            elif ocorrencia.startswith("009") or ocorrencia.startswith("FALTA"):
+                aba_resumo.append([nome_aba, data, "Falta", f"{ocorrencia_raw} - {hr_falta}"])
+                link_aba_funcionario(
+                    aba_resumo=aba_resumo,
+                    linha_celulas=linha_celulas,
+                    nome_aba=nome_aba,
+                    coluna="K"
+                )
+                for cel in linha_celulas:
+                    cel.fill = preenchimento_verde
 
     # Ajusta formatação da aba RESUMO
     for coluna in aba_resumo.columns:
