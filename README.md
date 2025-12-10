@@ -86,7 +86,7 @@ Indica saídas antecipadas onde as horas vão como saldo negativo para o banco d
 ### **3. Abono**
 
 Indica saídas antecipadas onde as horas NÃO vão como saldo negativo para o banco de horas.
-> Verifica se o texto da coluna de Ocorrências começa com **"004"** ou com **"ABONO"**. Se sim, cria uma linha na aba Resumo com os dados.
+> Verifica se o texto da coluna Ocorrências inicia com algum dos seguintes identificadores, conforme padrão estabelecido no Manual de Ponto do DP: “004”, “ABONO”, “EXAMES”, “LICENCA”, “ALISTAMENTO”, “DOACAO”, “ACOMPANHAMENTO”, “DECLARAC” e “CERTIDAO”. Se sim, cria uma linha na aba Resumo com os dados.
 
 ### **4. Saída antecipada**
 
@@ -99,8 +99,13 @@ Indica saídas antecipadas usando as horas que tem na casa.
 
 ### **6. Suspensão**
 
-Verifica se há alguma suspensão identificada na folha de ponto
+Verifica se há alguma suspensão identificada na folha de ponto.
 > Verifica se o texto da coluna de Ocorrências começa com **"010"** ou com **"SUSPENS"**. Se sim, cria uma linha na aba Resumo com os dados.
+
+### **7. Falta***
+
+Verifica se há alguma falta identificada na folha de ponto.
+> Verifica se o texto da coluna de Ocorrências começa com "009" ou com "FALTA". Se sim, cria uma linha na aba Resumo com os dados.
 
 
 ---
