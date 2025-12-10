@@ -102,7 +102,7 @@ Indica saídas antecipadas usando as horas que tem na casa.
 Verifica se há alguma suspensão identificada na folha de ponto.
 > Verifica se o texto da coluna de Ocorrências começa com **"010"** ou com **"SUSPENS"**. Se sim, cria uma linha na aba Resumo com os dados.
 
-### **7. Falta***
+### **7. Falta**
 
 Verifica se há alguma falta identificada na folha de ponto.
 > Verifica se o texto da coluna de Ocorrências começa com "009" ou com "FALTA". Se sim, cria uma linha na aba Resumo com os dados.
