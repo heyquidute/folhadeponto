@@ -1,10 +1,20 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import threading
-import os
+import os, sys
 from naoconformidade import analisar_conformidade
 from extrair_tabela import gerar_excel
 from verificacao import analisar_verificacao
+
+def resource_path(relative_path):
+    try:
+        # Quando rodado no executável
+        base_path = sys._MEIPASS
+    except Exception:
+        # Quando rodado no Python normal
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 # ======================================================
 # CLASSE PRINCIPAL - Interface e lógica do aplicativo
@@ -17,7 +27,7 @@ class FolhaPontoApp:
         self.root.geometry("620x380")
         self.root.configure(bg="#eef1f6")
         self.root.resizable(False, False)
-        self.root.iconbitmap("icone.ico")
+        self.root.iconbitmap(resource_path("icone.ico"))
 
         # --- Variáveis de controle e status ---
         self.file_path_var = tk.StringVar()   # Caminho do arquivo selecionado
