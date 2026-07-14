@@ -5,6 +5,10 @@ from openpyxl.styles import Alignment, Font, Border, Side, PatternFill
 from convert import to_time, to_float
 from cria_link import link_aba_funcionario, link_retorno
 
+def eh_batida(valor):
+    t = to_time(valor)
+    return t is not None and t != timedelta(0)
+
 def analisar_conformidade(caminho_arquivo):
     # Carrega o workbook existente
     wb = load_workbook(caminho_arquivo)
@@ -45,9 +49,11 @@ def analisar_conformidade(caminho_arquivo):
         if "Data" not in cabecalhos or "Ocorrência" not in cabecalhos or "Total" not in cabecalhos:
             continue
 
-        idx_data = cabecalhos.index("Data") + 1
-        idx_hrtot = cabecalhos.index("Hr Tot T") + 1
-        idx_hrsai = cabecalhos.index("Hr Sai T") + 1
+        idx_data = cabecalhos.index("Data")
+        idx_ent_m = cabecalhos.index("Hr Ent M")
+        idx_sai_m = cabecalhos.index("Hr Sai M")
+        idx_ent_t = cabecalhos.index("Hr Ent T")
+        idx_sai_t = cabecalhos.index("Hr Sai T")
 
         max_col = aba.max_column
         max_linha = aba.max_row
@@ -58,13 +64,12 @@ def analisar_conformidade(caminho_arquivo):
 
         # Percorre as linhas da aba do funcionário (menos a última)
         for linha_celulas in aba.iter_rows(min_row=2, max_row=max_linha-1):
-            data = linha_celulas[idx_data - 1].value
+            data = linha_celulas[idx_data].value
             t_manha = to_time(linha_celulas[col_turno_manha - 1].value)
             t_almoco = to_time(linha_celulas[col_t_almoco - 1].value)
             t_tarde = to_time(linha_celulas[col_turno_tarde - 1].value)
             t_total = to_time(linha_celulas[col_total - 1].value)
-            valor_hrtot = linha_celulas[idx_hrtot-1].value
-            hora_saida = to_time(linha_celulas[idx_hrsai - 1].value)
+            hora_saida = to_time(linha_celulas[idx_sai_t].value)
 
             # TEMPO DE ALMOÇO MENOR QUE 1 HORA
             if t_almoco and t_almoco < timedelta(hours=1):
@@ -117,18 +122,25 @@ def analisar_conformidade(caminho_arquivo):
                 aba_resumo.append([nome_aba, data, "Saída após 22h", f"Horário de saída: {hora_saida}"])
                 link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="F")
                 
-            #ERRO NA BATIDA
-            try:
-                negativo = "-" in str(valor_hrtot) or valor_hrtot.startswith("−")
-            except:
-                negativo = False
+            # ERRO NA BATIDA: 1 ou 3 horários preenchidos (0, 2 e 4 são válidos)
+            valores_batida = [
+                linha_celulas[idx_ent_m].value,
+                linha_celulas[idx_sai_m].value,
+                linha_celulas[idx_ent_t].value,
+                linha_celulas[idx_sai_t].value,
+            ]
+            qtd_batidas = sum(1 for v in valores_batida if eh_batida(v))
 
-            if negativo:
+            if qtd_batidas in (1, 3):
                 for cel in linha_celulas:
                     cel.fill = preenchimento_laranja
-                aba_resumo.append([nome_aba,data,"Quantidade ímpar de batidas",""])
-                # cria hyperlink para aba da ocorrencia
-                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="G")
+                aba_resumo.append([
+                    nome_aba,
+                    data,
+                    "Quantidade ímpar de batidas",
+                    f"Batidas: {qtd_batidas}",
+                ])
+                link_aba_funcionario(aba_resumo=aba_resumo, linha_celulas=linha_celulas, nome_aba=nome_aba, coluna="C")
         
         #SALDO DE HORAS NEGATIVO
         valor_saldo_hora = to_float(aba.cell(row=max_linha, column=9).value)
